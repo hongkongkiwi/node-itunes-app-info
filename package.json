@@ -1,0 +1,36 @@
+{
+  "name": "itunes-app-info",
+  "version": "0.0.1",
+  "description": "Simple module to return useful info from iTunes given an app id",
+  "main": "index.js",
+  "keywords": [
+    "itunes",
+    "scraper",
+    "api"
+  ],
+  "bugs": {
+    "url" : "https://github.com/hongkongkiwi/itunes-app-info/issues"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/hongkongkiwi/itunes-app-info.git"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha",
+    "preversion": "npm run build && git add -A dist"
+  },
+  "author": "Andy Savage <andy@savage.hk<",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "request": "^2.60.0",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5"
+  }
+}
