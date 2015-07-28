@@ -1,6 +1,6 @@
 {
   "name": "itunes-app-info",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Simple module to return useful info from iTunes given an app id",
   "main": "index.js",
   "keywords": [
