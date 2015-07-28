@@ -20,7 +20,7 @@
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
-    "preversion": "npm run build && git add -A dist"
+    "postversion": "git add package.json && git commit -m 'Incremented package.json version to %s'"
   },
   "author": "Andy Savage <andy@savage.hk<",
   "license": "MIT",
