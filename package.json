@@ -9,11 +9,11 @@
     "api"
   ],
   "bugs": {
-    "url": "https://github.com/hongkongkiwi/itunes-app-info/issues"
+    "url": "https://github.com/hongkongkiwi/node-itunes-app-info/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hongkongkiwi/itunes-app-info.git"
+    "url": "https://github.com/hongkongkiwi/node-itunes-app-info.git"
   },
   "directories": {
     "test": "test"
