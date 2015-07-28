@@ -1,7 +1,7 @@
 var request = require('request');
 var Promise = require("bluebird");
-var debug = require('debug')('itunes');
-var urlDebug = require('debug')('itunes::url');
+var urlLog = require('debug')('itunes::url');
+var resultsLog = require('debug')('itunes::results');
 var _ = require('underscore');
 
 /*http://www.apple.com/itunes/affiliates/resources/documentation/itunes-store-web-service-search-api.html#searching
@@ -9,43 +9,40 @@ https://itunes.apple.com/lookup?id=968261465*/
 
 function iTunes(options) {
   this.options = _.extend({
-    apiEndPoint: 'https://itunes.apple.com/search',
-    allowedParams: ['term','country','attribute','limit','lang','version','explicit'],
+    searchApiEndPoint: 'https://itunes.apple.com/search',
+    lookupApiEndPoint: 'https://itunes.apple.com/lookup',
+    allowedParams: {
+      search: ['term','country','attribute','limit','lang','version','explicit'],
+      lookup: ['id','bundleId'],
+    },
     defaults: {
       country: 'US',
-      language: 'en_us',
       version: 2,
-      explicit: 'Yes',
-      limit: 50,
     }
   }, options);
   this.Promise = Promise;
 }
 
-iTunes.prototype._sanitize = function(params) {
+iTunes.prototype._sanitize = function(type, params) {
   var returnObj = {};
   if (typeof params !== 'object') {
     return {};
   }
-  return _.extend(_.pick(params, this.options.allowedParams), this.options.defaults);
+  return _.extend(_.pick(params, this.options.allowedParams[type]), this.options.defaults);
 }
 
-iTunes.prototype._getUrl = function(query) {
-  var apiEndPoint = this.options.apiEndPoint;
-  var url = require('url').parse(apiEndPoint + '?' + require('querystring').stringify(query));
-  return url.href;
-}
-
-iTunes.prototype._request = function(params) {
-  var url = this._getUrl(params);
-  urlDebug(url);
+iTunes.prototype._request = function(endPoint, params) {
+  var url = require('url').parse(endPoint + '?' + require('querystring').stringify(params));
+  urlLog(url.href);
   return new this.Promise(function(resolve, reject) {
-    request(url, function(err, response, body) {
+    request(url.href, function(err, response, body) {
       if (err) {
         reject(err);
       } else {
         body = JSON.parse(body);
-        resolve(body['results'] || []);
+        var results = body['results'] || [];
+        resultsLog(results);
+        resolve(results);
       }
     });
   });
@@ -105,40 +102,44 @@ iTunes.prototype.ALL = {
   TRACKS: 'allTrack',
 }
 
-iTunes.prototype.findSoftware = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'software', entity: type || this.SOFTWARE.ALL}));
+iTunes.prototype.lookupSoftware = function(params) {
+  return this._request(this.options.lookupApiEndPoint, _.extend(this._sanitize('lookup', params)));
 }
 
-iTunes.prototype.findMusic = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'music', entity: type || this.MUSIC.SONG}));
+iTunes.prototype.searchSoftware = function(params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'software'}));
 }
 
-iTunes.prototype.findPodcast = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'podcast'}));
+iTunes.prototype.searchMusic = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'music', entity: type || this.MUSIC.SONG}));
 }
 
-iTunes.prototype.findMusicVideo = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'musicVideo'}));
+iTunes.prototype.searchPodcast = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'podcast'}));
 }
 
-iTunes.prototype.findAudioBook = function(params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'audiobook'}));
+iTunes.prototype.searchMusicVideo = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'musicVideo'}));
 }
 
-iTunes.prototype.findShortFilm = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'shortFilm'}));
+iTunes.prototype.searchAudioBook = function(params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'audiobook'}));
 }
 
-iTunes.prototype.findTvShow = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'tvShow'}));
+iTunes.prototype.searchShortFilm = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'shortFilm'}));
 }
 
-iTunes.prototype.findEBook = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'ebook', entity: ebook}));
+iTunes.prototype.searchTvShow = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'tvShow'}));
 }
 
-iTunes.prototype.findAll = function(type, params) {
-  return this._request(_.extend(this._sanitize(params), {media: 'all'}));
+iTunes.prototype.searchEBook = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'ebook', entity: ebook}));
+}
+
+iTunes.prototype.searchAll = function(type, params) {
+  return this._request(this.options.searchApiEndPoint, _.extend(this._sanitize('search', params), {media: 'all'}));
 }
 
 // As we want to use the spread function, we set it on any third party promise that's attached
