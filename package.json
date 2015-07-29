@@ -25,6 +25,7 @@
   "author": "Andy Savage <andy@savage.hk<",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^2.9.34",
     "debug": "^2.2.0",
     "request": "^2.60.0",
     "underscore": "^1.8.3"
